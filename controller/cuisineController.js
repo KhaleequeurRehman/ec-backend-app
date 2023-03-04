@@ -13,11 +13,11 @@ exports.add = async (req, res) => {
                if (!req.file) {
                     return apiResponse.ErrorResponse(res, "Image format not supported");
                } else {
-                    let check = await CuisineModel.find({ cuisine: { '$regex': '^' + req.body.cuisine + '$', "$options": "i" }, subcuisine: { '$regex': '^' + req.body.subcuisine + '$', "$options": "i" } }).lean().exec();
-                    if (check && check.length > 0) {
-                         return res.status(404).json({ status: false, message: "Already Exists" });
-                    }
-                    else {
+                    // let check = await CuisineModel.find({ cuisine: { '$regex': '^' + req.body.cuisine + '$', "$options": "i" }, subcuisine: { '$regex': '^' + req.body.subcuisine + '$', "$options": "i" } }).lean().exec();
+                    // if (check && check.length > 0) {
+                    //      return res.status(404).json({ status: false, message: "Already Exists" });
+                    // }
+                    // else {
                          await new CuisineModel({
                               cuisine: req.body.cuisine,
                               subCuisine: req.body.subCuisine,
@@ -26,7 +26,7 @@ exports.add = async (req, res) => {
                               active: true
                          }).save();
                          return res.status(200).json({ status: true, message: "New Cuisine Added successfully" });
-                    }
+                    // }
                }
           }
      } catch (err) {
