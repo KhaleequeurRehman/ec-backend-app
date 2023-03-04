@@ -215,7 +215,8 @@ exports.otpVerificationAdmin = async (req, res) => {
                 //Prepare JWT token for authentication
                 const jwtPayload = userData;
                 const jwtData = {
-                    expiresIn: process.env.JWT_TIMEOUT_DURATION,
+                    expiresIn: "24 hours"
+                    // expiresIn: process.env.JWT_TIMEOUT_DURATION,
                 };
                 userData.token = jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, jwtData);
                 return res.status(200).json({ status: true, message:"Verified and Successfully Login",data:userData});
