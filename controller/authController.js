@@ -747,7 +747,8 @@ exports.allUser = async (req, res) => {
 
     let totalUsersCount = await UserModel.countDocuments({}).exec();
 
-    let available = await UserModel.find({},"fullName status email addresses").skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+    // let available = await UserModel.find({},"fullName status email addresses").skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+    let available = await UserModel.find({}).skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
     return res.status(200).json({ status: true, message:"All Users" ,data: available,totalUsersCount}); 
     
   } catch (err) {
@@ -901,7 +902,8 @@ exports.customerDetails = async (req, res) => {
 exports.updateByAdmin = async (req, res) => {
   try{
        if (req.user.type !== 'admin'){
-            return res.status(404).json({ status: false, message:"Only Caterer can update Cuisine"});
+            // return res.status(404).json({ status: false, message:"Only Caterer can update Cuisine"});
+            return res.status(404).json({ status: false, message:"Only admin can update Cuisine"});
        }
        if (!req.body.id){
             return res.status(404).json({ status: false, message:"Id is required." });

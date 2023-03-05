@@ -67,7 +67,11 @@ var UserSchema = new mongoose.Schema({
 	discounts: [DiscountSchema],
 	addresses: [AddressSchema],
 	status: {type: String,default: 'active'},
-	balance: {type: String,default: '0.00'}
+	balance: {type: String,default: '0.00'},
+	firstName: {type: String, default:''},
+	lastName: {type: String, default:''},
+	password: {type: String, default:''},
+	role: {type: String, default:'customer'}
 }, {timestamps: true});
 
 module.exports = mongoose.model("user", UserSchema);

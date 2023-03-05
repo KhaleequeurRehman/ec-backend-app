@@ -99,6 +99,11 @@ exports.getSingleOrder = async (req, res) => {
             populate: {path:"driver",model: "driver"}
         })
 
+        // .populate({
+        //     path: "orderSummary.mealPlan.mealplaneId",
+        //     model:"mealplane"
+        // })
+        
         // return res.status(200).send(orderRes)
         return res.status(200).json({ status: true, message: "Your Order", data:orderRes })
         
