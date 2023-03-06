@@ -739,29 +739,82 @@ exports.usedPromotion = async (req, res) => {
 };
 
 
+// exports.allUser = async (req, res) => {
+//   try{
+
+//     let page = parseInt(req.body.page);
+//     let size = parseInt(req.body.size);
+//     const sortBy = req.body.sortBy
+//     const orderBy = req.body.orderBy
+//     const searchBy = req.body.searchBy || ""
+
+//     if(req.user.type !== 'admin'){
+//       return res.status(500).json({ status: true, message:"Only admin can fetch this" });
+//     }
+
+//     // let totalUsersCount = await UserModel.countDocuments({}).exec();
+//     let totalUsersCount = await UserModel.countDocuments({ fullName: { $regex: '^' + searchBy, $options: 'i' } }).exec();
+
+//     // let available = await UserModel.find({},"fullName status email addresses").skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+//     // let available = await UserModel.find({}).skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+//     let available = await UserModel.find({ fullName: { $regex: '^' + searchBy, $options: 'i' } })
+//     .skip((page - 1) * size).limit(size)
+//     .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+//     .lean()
+//     .exec();
+//     return res.status(200).json({ status: true, message:"All Users" ,data: available,totalUsersCount}); 
+    
+//   } catch (err) {
+//     return res.status(500).json({ status: false, message:err.message });
+//   }
+// };
+
 exports.allUser = async (req, res) => {
   try{
-
+    console.log("allUser ",req.body)
     let page = parseInt(req.body.page);
     let size = parseInt(req.body.size);
-    const sortBy = req.body.sortBy
-    const orderBy = req.body.orderBy
-    const searchBy = req.body.searchBy || ""
+    const sortBy = req.body.sortBy;
+    const orderBy = req.body.orderBy;
+    const searchBy = req.body.searchBy;
+    const filterBy = req.body.filterBy;
 
     if(req.user.type !== 'admin'){
       return res.status(500).json({ status: true, message:"Only admin can fetch this" });
     }
 
-    // let totalUsersCount = await UserModel.countDocuments({}).exec();
-    let totalUsersCount = await UserModel.countDocuments({ fullName: { $regex: '^' + searchBy, $options: 'i' } }).exec();
+    
+    let totalUsersCount;
+    let available;
 
-    // let available = await UserModel.find({},"fullName status email addresses").skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
-    // let available = await UserModel.find({}).skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
-    let available = await UserModel.find({ fullName: { $regex: '^' + searchBy, $options: 'i' } })
-    .skip((page - 1) * size).limit(size)
-    .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
-    .lean()
-    .exec();
+    if(filterBy){
+      totalUsersCount = await UserModel.countDocuments({ status: { $regex: '^' + filterBy, $options: 'i' } }).exec();
+      console.log("allUser filterBy= ",filterBy)
+      available = await UserModel.find({ status: { $regex: '^' + filterBy, $options: 'i' } })
+      .skip((page - 1) * size).limit(size)
+      .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+      .lean()
+      .exec();
+
+    }else if(searchBy){
+      totalUsersCount = await UserModel.countDocuments({ fullName: { $regex: '^' + searchBy, $options: 'i' } }).exec();
+      console.log("allUser searchBy= ",searchBy)
+       available = await UserModel.find({ fullName: { $regex: '^' + searchBy, $options: 'i' } })
+       .skip((page - 1) * size).limit(size)
+       .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+       .lean()
+       .exec();
+
+    }else{
+       totalUsersCount = await UserModel.countDocuments().exec();
+       console.log("allUser else ")
+        available = await UserModel.find()
+        .skip((page - 1) * size).limit(size)
+        .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+        .lean()
+        .exec();
+    }
+   
     return res.status(200).json({ status: true, message:"All Users" ,data: available,totalUsersCount}); 
     
   } catch (err) {
