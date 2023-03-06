@@ -741,14 +741,27 @@ exports.usedPromotion = async (req, res) => {
 
 exports.allUser = async (req, res) => {
   try{
+
+    let page = parseInt(req.body.page);
+    let size = parseInt(req.body.size);
+    const sortBy = req.body.sortBy
+    const orderBy = req.body.orderBy
+    const searchBy = req.body.searchBy || ""
+
     if(req.user.type !== 'admin'){
       return res.status(500).json({ status: true, message:"Only admin can fetch this" });
     }
 
-    let totalUsersCount = await UserModel.countDocuments({}).exec();
+    // let totalUsersCount = await UserModel.countDocuments({}).exec();
+    let totalUsersCount = await UserModel.countDocuments({ fullName: { $regex: '^' + searchBy, $options: 'i' } }).exec();
 
     // let available = await UserModel.find({},"fullName status email addresses").skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
-    let available = await UserModel.find({}).skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+    // let available = await UserModel.find({}).skip((parseInt(req.body.page) - 1) * parseInt(req.body.size)).limit(parseInt(req.body.size)).lean().exec()
+    let available = await UserModel.find({ fullName: { $regex: '^' + searchBy, $options: 'i' } })
+    .skip((page - 1) * size).limit(size)
+    .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+    .lean()
+    .exec();
     return res.status(200).json({ status: true, message:"All Users" ,data: available,totalUsersCount}); 
     
   } catch (err) {
