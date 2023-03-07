@@ -68,22 +68,57 @@ exports.getBy = async (req, res) => {
           const orderBy = req.body.orderBy
           const searchBy = req.body.searchBy || ""
 
+          let totalNotificatonsCount;
+          let data;
+          
+          if(searchBy){
+
+               totalNotificatonsCount = await NotificatonModel.countDocuments({  $and: [
+                    { to: { $regex: '^' + to, $options: 'i' } },
+                    { title: { $regex: '^' + searchBy, $options: 'i' } },
+               ] }).exec();
+               console.log("to ",to)
+               console.log("searchBy ",searchBy)
+               data = await NotificatonModel.find({ $and: [
+                    { to: { $regex: '^' + to, $options: 'i' } },
+                    { title: { $regex: '^' + searchBy, $options: 'i' } },
+               ] })
+               .skip((parseInt(page) - 1) * parseInt(size))
+               .limit(parseInt(size))
+               .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+               .lean()
+               .exec();
+
+          }else{
+               totalNotificatonsCount = await NotificatonModel.countDocuments({ to: { $regex: '^' + to, $options: 'i' } }).exec();
+          
+               data = await NotificatonModel.find({ to: { $regex: '^' + to, $options: 'i' } })
+               .skip((parseInt(page) - 1) * parseInt(size))
+               .limit(parseInt(size))
+               .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+               .lean()
+               .exec();
+     
+          }
+          
           // let totalNotificatonsCount = await NotificatonModel.countDocuments({ to: { $regex: '^' + to, $options: 'i' } }).exec();
-          let totalNotificatonsCount = await NotificatonModel.countDocuments({  $or: [
-               { to: { $regex: '^' + to, $options: 'i' } },
-               { title: { $regex: '^' + searchBy, $options: 'i' } },
-             ] }).exec();
+          // let totalNotificatonsCount = await NotificatonModel.countDocuments({  $or: [
+          //      { to: { $regex: '^' + to, $options: 'i' } },
+          //      { title: { $regex: '^' + searchBy, $options: 'i' } },
+          //    ] }).exec();
+          // let totalNotificatonsCount = await NotificatonModel.countDocuments({ to: { $regex: '^' + to, $options: 'i' } }).exec();
 
 
-          let data = await NotificatonModel.find({ $or: [
-               { to: { $regex: '^' + to, $options: 'i' } },
-               { title: { $regex: '^' + searchBy, $options: 'i' } },
-             ] })
-          .skip((parseInt(page) - 1) * parseInt(size))
-          .limit(parseInt(size))
-          .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
-          .lean()
-          .exec();
+          // let data = await NotificatonModel.find({ $or: [
+          //      { to: { $regex: '^' + to, $options: 'i' } },
+          //      { title: { $regex: '^' + searchBy, $options: 'i' } },
+          //    ] })
+          // let data = await NotificatonModel.find({ to: { $regex: '^' + to, $options: 'i' } })
+          // .skip((parseInt(page) - 1) * parseInt(size))
+          // .limit(parseInt(size))
+          // .sort(`${orderBy === "desc" ? "-" : ""}${sortBy}`)
+          // .lean()
+          // .exec();
           res.status(200).json({ status: true, data, totalNotificatonsCount });
      } catch (err) {
           return res.status(500).json({ status: false, message: err.message });
